@@ -40,6 +40,6 @@ def getFaceScore(path):
     
 
 if __name__ == "__main__":
-    getFaceScore('/users/leisure/desktop/meizi/xianger.jpg')
+    print(getFaceScore('/users/leisure/desktop/meizi/阮绵绵童鞋.jpg'))
 
 

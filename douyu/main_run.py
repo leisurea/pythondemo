@@ -3,7 +3,7 @@ from face_aip import getFaceScore
 import operator
 import os
 
-
+# 新的开始
 def newStart():
     meizi = getYZMeiZi([], 1)
     print('逮到 %d 个颜值妹子主播信息' %len(meizi))
@@ -22,6 +22,7 @@ def newStart():
         data['score'] = score
     done(meizi)
 
+# 图片下好了直接获取评分
 def halfStart():
     meizi = []
     path = r'/users/leisure/desktop/meizi/'
@@ -45,5 +46,5 @@ def done(meizi):
     print(scored_meizi)
 
 if __name__ == "__main__":
-#    newStart()
-    halfStart()
+   newStart()
+    # halfStart()

@@ -48,10 +48,7 @@ def getYZMeiZi(meizi, page):
         return meizi
 
 
-header2 = {
-    'User-Agent':'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.90 Safari/537.36'
-}
-#url的形式百度无法识别，只能下载上传，interesting
+#url的形式百度无法识别，只能下载了再上传，interesting
 def download(image, name):
     # req = urllib.request.Request(image,headers = header2)
     # respone = urllib.request.urlopen(req)
@@ -63,18 +60,7 @@ def download(image, name):
     except Exception:
         return -1
 
-def f(page):
-    #  global n
-    #  page+=1
-     print(page)
-     if page >= 5:
-         return page
-     return f(page + 1)
 
 if __name__ == "__main__":
-#    meizi= getYZMeiZi([], 1)
-#    print(meizi)
-
-#    download('https://rpic.douyucdn.cn/asrpic/191010/6508008_4828670_0077f_2_1049.jpg','xianger')
-
-    print('结果：',f(1))
+   meizi= getYZMeiZi([], 1)
+   print(meizi)
