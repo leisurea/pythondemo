@@ -19,21 +19,37 @@ header = {
 client = pymongo.MongoClient('mongodb://localhost')
 girlsDB = client['WZLY_Girls']#指定数据库
 girlsTB = girlsDB['girls']#集合。可以理解为表
+girlsYZTB = girlsDB['girlsyz']#颜值数据库（需要优化）
 
 # 获取列表，默认一页10条记录，没有发现总页数限制,先获取100页试试
 def getGirls(page):
-    req = request.Request(url=url+str(page),headers=header,method='GET')
-    respone = request.urlopen(req)
-    data = gzip.decompress(respone.read()).decode()
-    resutl = json.loads(data)
-    # print(resutl)
-    items = resutl['data']['list']
-    girlsTB.insert_many(items)
-    # for item in items:
+    try:
+        req = request.Request(url=url+str(page),headers=header,method='GET')
+        respone = request.urlopen(req)
+        data = gzip.decompress(respone.read()).decode()
+        resutl = json.loads(data)
+        # print(resutl)
+        items = resutl['data']['list']
+        girlsTB.insert_many(items)
+        # for item in items:
+        if page < 100:
+            print('第%d页完成：'%page)
+            getGirls(page+1)
+    except Exception as identifier:
+        print('第%d页报错：'%page, identifier)
 
+def getGirlsInfoByDB():
+    return girlsTB.find()
 
+# 保存颜值数据
+def saveGirlYZ(yanzhi):
+    girlsYZTB.insert_one(yanzhi)
+
+def getGirlYZ():
+    return girlsYZTB.find()
 
 if __name__ == "__main__":
     # getGirls(1)
-    for item in girlsTB.find():
-        print(item)
+    print(girlsTB.find_one()['username'])
+    # for item in girlsTB.find():
+    #     print(item)
