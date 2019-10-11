@@ -1,7 +1,7 @@
 from urllib import request
 import gzip
 import json
-import pymongo
+from mongodb import girlsTB, girlsYZTB
 
 url = 'http://www.7799520.com/api/user/pc/list/search?startage=21&endage=30&gender=2&marry=1&education=40&page='
 header = {
@@ -16,10 +16,7 @@ header = {
     'X-Requested-With': 'XMLHttpRequest'
 }
 
-client = pymongo.MongoClient('mongodb://localhost')
-girlsDB = client['WZLY_Girls']#指定数据库
-girlsTB = girlsDB['girls']#集合。可以理解为表
-girlsYZTB = girlsDB['girlsyz']#颜值数据库（需要优化）
+
 
 # 获取列表，默认一页10条记录，没有发现总页数限制,先获取100页试试
 def getGirls(page):
@@ -31,9 +28,8 @@ def getGirls(page):
         # print(resutl)
         items = resutl['data']['list']
         girlsTB.insert_many(items)
-        # for item in items:
-        if page < 100:
-            print('第%d页完成：'%page)
+        print('第%d页完成：'%page)
+        if page < 150:
             getGirls(page+1)
     except Exception as identifier:
         print('第%d页报错：'%page, identifier)
@@ -45,11 +41,13 @@ def getGirlsInfoByDB():
 def saveGirlYZ(yanzhi):
     girlsYZTB.insert_one(yanzhi)
 
+# 获取颜值数据
 def getGirlYZ():
     return girlsYZTB.find()
+    
 
 if __name__ == "__main__":
     # getGirls(1)
-    print(girlsTB.find_one()['username'])
-    # for item in girlsTB.find():
-    #     print(item)
+    # print(girlsTB.find_one()['username'])
+    for item in girlsTB.find():
+        print(item)
