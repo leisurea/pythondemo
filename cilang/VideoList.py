@@ -3,6 +3,14 @@ import gzip
 import re
 import base64
 import os
+import random
+import sys
+import time
+#必须放在外部模块引用前面，干
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # __file__获取执行文件相对路径，整行为取上一级的上一级目录
+sys.path.append(BASE_DIR)
+
+from util.UAPool import data as UserAgent
 
 baseUrl = 'http://10cilang1.com'
 header = {
@@ -10,11 +18,11 @@ header = {
     'Accept-Encoding': 'gzip, deflate',
     'Accept-Language': 'zh-CN,zh;q=0.9',
     'Connection': 'keep-alive',
-    'Cookie': 'Hm_lvt_ec451dddb5d0ddafc72355d97e34a41c=1570697344; history=%5B%7B%22name%22%3A%22%E7%BD%91%E7%BA%A2%E7%BE%8E%E4%B9%B3%E8%90%9D%E8%8E%89%E5%B0%8F%E9%B8%9F%E9%85%B1%20%E4%BA%BA%E7%BE%8E%E9%80%BC%E7%BE%8E%20%E9%AB%98%E6%B8%85%E8%87%AA%E6%8B%8D%20%E6%8A%BD%E6%8F%92%22%2C%22pic%22%3A%22%2Fdetail%2F%3F9894.html%22%2C%22link%22%3A%22%2Fvideo%2F%3F9894-0-0.html%22%2C%22part%22%3A%22%E7%AC%AC1%E9%9B%86%22%7D%5D; Hm_lpvt_ec451dddb5d0ddafc72355d97e34a41c=1570845432',
+    'Cookie': 'Hm_lvt_ec451dddb5d0ddafc72355d97e34a41c=1570845432; history=%5B%7B%22name%22%3A%22%E7%BD%91%E7%BA%A2%E7%BE%8E%E4%B9%B3%E8%90%9D%E8%8E%89%E5%B0%8F%E9%B8%9F%E9%85%B1%20%E4%BA%BA%E7%BE%8E%E9%80%BC%E7%BE%8E%20%E9%AB%98%E6%B8%85%E8%87%AA%E6%8B%8D%20%E6%8A%BD%E6%8F%92%22%2C%22pic%22%3A%22%2Fdetail%2F%3F9894.html%22%2C%22link%22%3A%22%2Fvideo%2F%3F9894-0-0.html%22%2C%22part%22%3A%22%E7%AC%AC1%E9%9B%86%22%7D%5D; Hm_lpvt_ec451dddb5d0ddafc72355d97e34a41c='+str(int(time.time())),
     'Host': '10cilang1.com',
     'Referer': 'http://10cilang1.com/list/?1.html',
     'Upgrade-Insecure-Requests': '1',
-    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.90 Safari/537.36'
+    'User-Agent': random.choice(UserAgent)
 }
 
 #获取首页频道列表
@@ -44,6 +52,7 @@ def getTabPage(lists, tab, page):
     currUrl = '{0}/list/?{1}.html'.format(baseUrl,suffix)
     # http://10cilang1.com/list/?1-2.html
     header['Referer'] = '{0}/list/?{1}.html'.format(baseUrl, tab[0])
+    header['User-Agent'] = random.choice(UserAgent)
 
     try:
         req = request.Request(url=currUrl,headers=header,method='GET')
@@ -77,6 +86,8 @@ def getVideoPlayUrlFromDetailPage(video,retry = 0):
     currUrl = baseUrl + video[0]
     try:
         header['Referer'] = video[2]
+        header['User-Agent'] = random.choice(UserAgent)
+
         req = request.Request(url=currUrl,headers=header,method='GET')
         respone = request.urlopen(req)
         xmldata = gzip.decompress(respone.read()).decode()
@@ -87,11 +98,12 @@ def getVideoPlayUrlFromDetailPage(video,retry = 0):
 
         return base64PlayUrl
     except Exception as identifier:
+        print('%s视频详情获取错误'%str(video[1]),repr(identifier))
         if '502' in repr(identifier) and retry > 5:
             return ''
         else:
-            return getVideoPlayUrlFromDetailPage(video,retry)
-        print('视频详情获取错误',repr(identifier))
+            return getVideoPlayUrlFromDetailPage(video,retry+1)
+       
 
 # 上一步获取到的播放地址只是个头，里面内容才是真是的地址
 # 分两种情况，一种获取到的是单m3u8,里面就是ts列表
@@ -100,7 +112,7 @@ def getVideoPlayUrlFromDetailPage(video,retry = 0):
 # 另一个m3u8的文件地址又分两种情况，一种是直接1000k/hls/index.m3u8
 # 另一种是/20190718/K1SctSba//800kb/hls/index.m3u8
 # 先根据这个地址是否以/ 开头为判断拼接这第二个m3u8文件路径
-def getm3u8Head(video, m3u8Url):
+def getm3u8Head(video, m3u8Url,retry=0):
     try:
         # /video/?524-0-0.html
         referer = str(video[0]).replace('/video/?','').replace('.html','')
@@ -110,7 +122,7 @@ def getm3u8Head(video, m3u8Url):
             # 'Referer': 'http://10cilang1.com/js/player/dplayer/dplayer.html?videourl=/video/?524-0-0.html,https://qq.com-ixx-youku.com/20190831/6737_90f8f43e/index.m3u8,,524,0,0',
             'Referer': '{0}/js/player/dplayer/dplayer.html?{1},{2},,{3},{4},{5}'.format(baseUrl, video[0],m3u8Url,referer[0],referer[1],referer[2]),
             'Sec-Fetch-Mode': 'cors',
-            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.90 Safari/537.36'
+            'User-Agent': random.choice(UserAgent)
         }
         req = request.Request(url=m3u8Url,headers=header,method='GET')
         respone = request.urlopen(req).read().decode()
@@ -137,8 +149,13 @@ def getm3u8Head(video, m3u8Url):
                 data[i] = finalUrl + data[i]
             return header, data
     except Exception as identifier:
-        print('视频播放地址m3u8文件获取错误',repr(identifier))
-        return getm3u8Head(video,m3u8Url)
+        print('%s视频播放地址m3u8文件获取错误'%str(video[1]),repr(identifier))
+        if '403' in repr(identifier) and retry > 5:
+            return ''
+        else:
+            return getm3u8Head(video,m3u8Url,retry+1)
+        # print('视频播放地址m3u8文件获取错误',repr(identifier))
+        # return getm3u8Head(video,m3u8Url)
 
 # 根据第一个m3u8文件获取到的第二个m3u8地址后缀拼凑成完整的第二个m3u8地址
 def getNextM3U8CompleteUrl(lastUrl, suffixUrl):
