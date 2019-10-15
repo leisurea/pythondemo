@@ -1,4 +1,5 @@
 import pymongo 
+import random
 
 #手动安装的数据库，麻烦的启动方法 mongod --config /usr/local/etc/mongod.conf
 # 关闭 打开另一个终端窗口 切换到你的mongodb/bin目录下   ./mongo
@@ -29,8 +30,10 @@ def isVideoExist(videoUrl):
 #
 if __name__ == "__main__":
     videoInfos = getTSList()
+    # print(len(list(videoInfos)))
     for videoInfo in videoInfos:
-        print(videoInfo['video'])
+        print(len(videoInfo['tslist']))
+        break
 
     # print(isVideoExist('/video/?10698-0-0.html'))
 

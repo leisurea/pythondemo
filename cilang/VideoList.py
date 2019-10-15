@@ -11,6 +11,11 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # __file
 sys.path.append(BASE_DIR)
 
 from util.UAPool import data as UserAgent
+import ssl
+
+# context = ssl._create_unverified_context()
+# response = request.urlopen(request,context=context)
+# ssl._create_default_https_context = ssl._create_unverified_context
 
 baseUrl = 'http://10cilang1.com'
 header = {
@@ -149,8 +154,9 @@ def getm3u8Head(video, m3u8Url,retry=0):
                 data[i] = finalUrl + data[i]
             return header, data
     except Exception as identifier:
-        print('%s视频播放地址m3u8文件获取错误'%str(video[1]),repr(identifier))
-        if '403' in repr(identifier) and retry > 5:
+        print('%s视频播放地址m3u8文件获取错误'%str(video[1]),repr(identifier),header)
+        # if '403' in repr(identifier) and retry > 5:#404也出来了
+        if retry > 5:
             return ''
         else:
             return getm3u8Head(video,m3u8Url,retry+1)
@@ -169,17 +175,17 @@ def getNextM3U8CompleteUrl(lastUrl, suffixUrl):
     return lastUrl + suffixUrl
 
 # 下载ts列表文件
-def downloadTSFile(header, url):
+def downloadTSFile(path, header, url):
     print(url)
-    path = '/Users/leisure/Desktop/meizi3/测试/'
+    # path = '/Users/leisure/Desktop/meizi3/测试/'
     filename = url[url.rfind('/')+1:]
     try:
-        result = request.urlretrieve(url,'%s%s'%(path,filename))
+        result = request.urlretrieve(url,'%s%s'%(path, filename))
         print('下载完成%s' %result[0])
         return result[0]
     except Exception as xiang:
         print('下载异常,重新下载：',xiang)
-        downloadTSFile(header, url)
+        downloadTSFile(path, header, url)
         return -1
 
 
