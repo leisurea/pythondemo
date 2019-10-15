@@ -32,8 +32,8 @@ if __name__ == "__main__":
     videoInfos = getTSList()
     # print(len(list(videoInfos)))
     for videoInfo in videoInfos:
-        print(len(videoInfo['tslist']))
-        break
+        print(videoInfo['video'])
+
 
     # print(isVideoExist('/video/?10698-0-0.html'))
 

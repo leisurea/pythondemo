@@ -21,6 +21,11 @@ def downloadOneVideo(videoInfo,path):
     pool = multiprocessing.Pool(10)
 
     filePath =path + videoInfo['video'][0].replace('/video/?','').replace('.html','')+'/'
+    
+    if os.path.exists(filePath):
+        print('已经存在的目录不下载', filePath)
+        return
+
     makedir(filePath)
     fileName = videoInfo['video'][1] + '.mp4'
     tslist = videoInfo['tslist']
@@ -66,15 +71,10 @@ if __name__ == "__main__":
     #             saveTSList({'video':video,'header':header,'tslist':tslist})
 
 
-    path = '/Users/leisure/Desktop/meizi3/'
+    path = '/Users/leisure/downloads/cilang/'
     makedir(path)
-    onshot = True
     #获取所有视频列表
     videoInfos = getTSList()
     # print(len(list(videoInfos)))
     for videoInfo in videoInfos:
-        if onshot:
-            onshot = False
-            continue
         downloadOneVideo(videoInfo,path)
-        break

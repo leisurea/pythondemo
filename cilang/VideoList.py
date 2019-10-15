@@ -175,8 +175,8 @@ def getNextM3U8CompleteUrl(lastUrl, suffixUrl):
     return lastUrl + suffixUrl
 
 # 下载ts列表文件
-def downloadTSFile(path, header, url):
-    print(url)
+def downloadTSFile(path, header, url,retry = 0):
+    # print(url)
     # path = '/Users/leisure/Desktop/meizi3/测试/'
     filename = url[url.rfind('/')+1:]
     try:
@@ -185,8 +185,10 @@ def downloadTSFile(path, header, url):
         return result[0]
     except Exception as xiang:
         print('下载异常,重新下载：',xiang)
-        downloadTSFile(path, header, url)
-        return -1
+        if retry > 5:
+            return -1
+        else:
+            return downloadTSFile(path, header, url,retry+1)
 
 
 #合并ts文件
@@ -223,9 +225,7 @@ if __name__ == "__main__":
     #     # print(lists)
     #     break
 
-    # getVideoPlayUrlFromDetailPage(('/video/?10703-0-0.html', '【萝莉】高清无码3p小萝莉连续中出淫水乱流3', 'http://10cilang1.com/list/?30.html'))
-    # completeInfo = getm3u8Head(('/video/?10703-0-0.html', '【萝莉】高清无码3p小萝莉连续中出淫水乱流3', 'http://10cilang1.com/list/?30.html'),'https://2.ddyunbo.com/20190718/K1SctSba/index.m3u8')
-    #  header, data = completeInfo
+   #  header, data = completeInfo
     path = '/Users/leisure/Desktop/meizi3/'
     isExists = os.path.exists(path)
     # 判断结果
@@ -240,7 +240,6 @@ if __name__ == "__main__":
     # for url in data:
     #     downloadTSFile(header,url)
     
-    combine(path,'【萝莉】高清无码3p小萝莉连续中出淫水乱流3')
     # getFinalTSPlayUrl(m3u8Head)
     # video='/video/?524-0-0.html'
     # referer = str(video).replace('/video/?','').replace('.html','')
