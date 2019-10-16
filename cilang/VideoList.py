@@ -12,10 +12,13 @@ sys.path.append(BASE_DIR)
 
 from util.UAPool import data as UserAgent
 import ssl
+import socket
 
 # context = ssl._create_unverified_context()
 # response = request.urlopen(request,context=context)
 # ssl._create_default_https_context = ssl._create_unverified_context
+
+socket.setdefaulttimeout(30)
 
 baseUrl = 'http://10cilang1.com'
 header = {
@@ -104,7 +107,8 @@ def getVideoPlayUrlFromDetailPage(video,retry = 0):
         return base64PlayUrl
     except Exception as identifier:
         print('%s视频详情获取错误'%str(video[1]),repr(identifier))
-        if '502' in repr(identifier) and retry > 5:
+        # if ('502' in repr(identifier) or '403' in repr(identifier)) and retry > 2:
+        if retry > 1:
             return ''
         else:
             return getVideoPlayUrlFromDetailPage(video,retry+1)
@@ -131,6 +135,7 @@ def getm3u8Head(video, m3u8Url,retry=0):
         }
         req = request.Request(url=m3u8Url,headers=header,method='GET')
         respone = request.urlopen(req).read().decode()
+        print(respone)
         #第一种情况
 
 
@@ -154,9 +159,9 @@ def getm3u8Head(video, m3u8Url,retry=0):
                 data[i] = finalUrl + data[i]
             return header, data
     except Exception as identifier:
-        print('%s视频播放地址m3u8文件获取错误'%str(video[1]),repr(identifier),header)
+        print('%s视频播放地址m3u8文件获取错误'%str(video[1]),repr(identifier))
         # if '403' in repr(identifier) and retry > 5:#404也出来了
-        if retry > 5:
+        if retry > 1:
             return ''
         else:
             return getm3u8Head(video,m3u8Url,retry+1)
@@ -176,7 +181,7 @@ def getNextM3U8CompleteUrl(lastUrl, suffixUrl):
 
 # 下载ts列表文件
 def downloadTSFile(path, header, url,retry = 0):
-    # print(url)
+    print(url)
     # path = '/Users/leisure/Desktop/meizi3/测试/'
     filename = url[url.rfind('/')+1:]
     try:
@@ -185,10 +190,11 @@ def downloadTSFile(path, header, url,retry = 0):
         return result[0]
     except Exception as xiang:
         print('下载异常,重新下载：',xiang)
-        if retry > 5:
-            return -1
-        else:
-            return downloadTSFile(path, header, url,retry+1)
+        return -1
+        # if retry > 2:
+        #     return -1
+        # else:
+        #     return downloadTSFile(path, header, url,retry+1)
 
 
 #合并ts文件

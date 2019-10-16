@@ -60,11 +60,11 @@ def file_walker(path):
     return file_list
 
 if __name__ == "__main__":
-    path = '/users/leisure/desktop/meizi3/测试/'
-    files = file_walker(path)
-    files.sort()
-    print(len(files+files))
-    mergeTS2MP4(files ,'湘儿.mp4')
+    path = '/Users/leisure/Downloads/cilang/'
+    # files = file_walker(path)
+    # files.sort()
+    # print(len(files+files))
+    mergeTS2MP4(path+'10702-0-0/', path ,'湘儿.mp4')
 
 
     # files = os.listdir(path)
