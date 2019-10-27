@@ -64,7 +64,7 @@ if __name__ == "__main__":
     # files = file_walker(path)
     # files.sort()
     # print(len(files+files))
-    mergeTS2MP4(path+'10702-0-0/', path ,'湘儿.mp4')
+    mergeTS2MP4(path+'11750-0-0/', path ,'湘儿.mp4')
 
 
     # files = os.listdir(path)

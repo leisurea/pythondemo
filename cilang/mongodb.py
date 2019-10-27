@@ -30,9 +30,13 @@ def isVideoExist(videoUrl):
 #
 if __name__ == "__main__":
     videoInfos = getTSList()
-    # print(len(list(videoInfos)))
-    for videoInfo in videoInfos:
-        print(videoInfo['tslist'][0])
+    print(len(list(videoInfos)))
+    # for videoInfo in videoInfos:
+        # header = []
+        # for K,V in videoInfo['header'].items():
+        #     header.append((K,V))
+        # print(header)
+        # break
 
 
     # print(isVideoExist('/video/?10698-0-0.html'))
