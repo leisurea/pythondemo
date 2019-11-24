@@ -1,5 +1,6 @@
 import pymongo 
 import random
+import os
 
 #手动安装的数据库，麻烦的启动方法 mongod --config /usr/local/etc/mongod.conf
 # 关闭 打开另一个终端窗口 切换到你的mongodb/bin目录下   ./mongo
@@ -29,14 +30,34 @@ def isVideoExist(videoUrl):
 
 #
 if __name__ == "__main__":
+
+    path = '/Users/leisure/downloads/cilang/'
+
+    for root, dirs, files in os.walk(path):
+        mulu = dirs
+        break
     videoInfos = getTSList()
-    print(len(list(videoInfos)))
-    # for videoInfo in videoInfos:
+    # print(len(list(videoInfos)))
+    # print(len(mulu))
+    
+        
+    for videoInfo in videoInfos:
+        for wenjianjia in mulu:
+            # print(str(videoInfo["video"][0]).replace(r"/video/?",'').replace(r'.html',''))
+            if wenjianjia in videoInfo['video'][0]:
+                print(videoInfo["video"][0],' == ',videoInfo["video"][1])
+                break
+        # else:
+            # print('不匹配：',wenjianjia)
+                
+        
         # header = []
         # for K,V in videoInfo['header'].items():
         #     header.append((K,V))
         # print(header)
         # break
+
+
 
 
     # print(isVideoExist('/video/?10698-0-0.html'))

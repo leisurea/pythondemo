@@ -5,6 +5,7 @@ from m3u8tomp4 import mergeTS2MP4
 import os
 import time
 import multiprocessing
+from operator import itemgetter, attrgetter
 
 #创建文件夹
 def makedir(path):
@@ -15,14 +16,23 @@ def makedir(path):
         # 创建目录操作函数
         os.makedirs(path) 
 
+def isDirsExists(filePath):
+    for root, dirs, files in os.walk(path): # a generator
+        if len(dirs) > 0:
+            for dirName in dirs:
+                if dirName == filePath:
+                    return True
+    return False
+
+
 # 下载一部视频并且合并
 def downloadOneVideo(videoInfo,path):
-    start_time = time.time()
-    pool = multiprocessing.Pool(10)
 
-    filePath = path + videoInfo['video'][0].replace('/video/?','').replace('.html','')+'/'
+    dirName = videoInfo['video'][0].replace('/video/?','').replace('.html','')
+    filePath = path + dirName+'/'
     
-    if os.path.exists(filePath):
+    # if os.path.exists(filePath):
+    if isDirsExists(dirName):
         print('已经存在的目录不下载', filePath)
         return
 
@@ -34,8 +44,9 @@ def downloadOneVideo(videoInfo,path):
     header = []
     for K,V in videoInfo['header'].items():
         header.append((K,V))
-    # print(tslist)
-    # print(repr(videoInfo))
+
+    start_time = time.time()
+    pool = multiprocessing.Pool(20)
     results = []
     for url in tslist:
         results.append(pool.apply_async(downloadTSFile,(filePath, header, url,)))
@@ -45,7 +56,8 @@ def downloadOneVideo(videoInfo,path):
     end_time = time.time()
     print('下载完毕,用时:%s秒,共计下载%d条数据' % (end_time - start_time,len(results)))
 
-    mergeTS2MP4(filePath, path, fileName)
+    # 合并ts文件
+    # mergeTS2MP4(filePath, path, fileName)
 
 
 if __name__ == "__main__":
@@ -82,6 +94,23 @@ if __name__ == "__main__":
     makedir(path)
     #获取所有视频列表
     videoInfos = getTSList()
-    # print(len(list(videoInfos)))
+
+    xianger = []
     for videoInfo in videoInfos:
-        downloadOneVideo(videoInfo,path)
+        videoInfo['position'] = int(str(videoInfo['video'][0]).replace(r"/video/?",'').replace(r'.html','').replace('-0-0',''))
+        # videoInfo['position'] = id
+        # print(videoInfo)
+        #游标不好排序，取出来
+        xianger.append(videoInfo)
+        
+    # sorted(xianger, key = lambda xiang: int(str(xiang['video'][0]).replace(r"/video/?",'').replace(r'.html','').replace('-0-0','')))
+    xianger.sort(key = itemgetter('position'), reverse = True)
+
+    # for videoInfo in videoInfos:
+    #     print(videoInfo['video'])
+        # if int(str(videoInfo["video"][0]).replace(r"/video/?",'').replace(r'.html','').replace('-0-0',''))>10000:
+        #     print(videoInfo["video"][0],' == ',videoInfo["video"][1])
+
+    # print(len(list(videoInfos)))
+    for xiang in xianger:
+        downloadOneVideo(xiang, path)
